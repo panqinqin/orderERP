@@ -201,7 +201,7 @@ export const getUserCount = data => fetch('/v1/users/count', data);
  * 获取订单列表
  */
 
-export const getOrderList = data => fetch('/bos/orders', data);
+export const getOrderList = data => fetch('/v1/order/pageList', data,'post');
 
 /**
  * 获取订单数量

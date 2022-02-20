@@ -8,39 +8,101 @@
                 :expand-row-keys='expendRow'
                 :row-key="row => row.index"
 			    style="width: 100%">
-			    <el-table-column type="expand">
-			      <template slot-scope="props">
-			        <el-form label-position="left" inline class="demo-table-expand">
-			          <el-form-item label="用户名" >
-			            <span>{{ props.row.user_name }}</span>
-			          </el-form-item>
-			          <el-form-item label="店铺名称">
-			            <span>{{ props.row.restaurant_name }}</span>
-			          </el-form-item>
-			          <el-form-item label="收货地址">
-			            <span>{{ props.row.address }}</span>
-			          </el-form-item>
-			          <el-form-item label="店铺 ID">
-			            <span>{{ props.row.restaurant_id }}</span>
-			          </el-form-item>
-			          <el-form-item label="店铺地址">
-			            <span>{{ props.row.restaurant_address }}</span>
-			          </el-form-item>
-			        </el-form>
-			      </template>
+			    <el-table-column
+			      label="日期"
+			      prop="date">
+                    <template slot-scope="scope">
+                        {{moment(scope.date).format('YYYY-MM-DD')}}
+                    </template>
 			    </el-table-column>
 			    <el-table-column
-			      label="订单 ID"
-			      prop="id">
+			      label="产品型号"
+			      prop="model">
 			    </el-table-column>
 			    <el-table-column
-			      label="总价格"
-			      prop="total_amount">
+			      label="订单号"
+			      prop="orderNo">
 			    </el-table-column>
-			    <el-table-column
-			      label="订单状态"
-			      prop="status">
-			    </el-table-column>
+                <el-table-column
+                    label="销售额"
+                    prop="salesVolume">
+                </el-table-column>
+                <el-table-column
+                    label="SLS买家运费"
+                    prop="buyerFreight">
+                </el-table-column>
+                <el-table-column
+                    label="运费补贴"
+                    prop="freightSubsidy">
+                </el-table-column>
+                <el-table-column
+                    label="SLS卖家"
+                    prop="sellerFreight">
+                </el-table-column>
+                <el-table-column
+                    label="优惠券"
+                    prop="couponVolume">
+                </el-table-column>
+                <el-table-column
+                    label="佣金"
+                    prop="commission">
+                </el-table-column>
+                <el-table-column
+                    label="活动费率"
+                    prop="activityCommission">
+                </el-table-column>
+                <el-table-column
+                    label="交易手续费"
+                    prop="transactionFee">
+                </el-table-column>
+                <el-table-column
+                    label="实际收入"
+                    prop="income">
+                </el-table-column>
+                <el-table-column
+                    label="汇率"
+                    prop="exchangeRate">
+                </el-table-column>
+                <el-table-column
+                    label="实际订单收入（RMB）"
+                    prop="incomeRmb">
+                </el-table-column>
+                <el-table-column
+                    label="购买成本（RMB）"
+                    prop="purchaseCost">
+                </el-table-column>
+                <el-table-column
+                    label="售后反币/返券"
+                    prop="praiseRebate">
+                </el-table-column>
+                <el-table-column
+                    label="货代费用（RMB）"
+                    prop="agencyFee">
+                </el-table-column>
+                <el-table-column
+                    label="利润额（RMB）"
+                    prop="profit">
+                </el-table-column>
+                <el-table-column
+                    label="销售额（RMB）"
+                    prop="salesVolumeRmb">
+                </el-table-column>
+                <el-table-column
+                    label="利润率"
+                    prop="profitMargin">
+                </el-table-column>
+                <el-table-column
+                    label="采购账号"
+                    prop="purchaseAccount">
+                </el-table-column>
+                <el-table-column
+                    label="采购时间"
+                    prop="purchaseTime">
+                </el-table-column>
+                <el-table-column
+                    label="快递单号"
+                    prop="orderNo">
+                </el-table-column>
 			</el-table>
             <div class="Pagination" style="text-align: left;margin-top: 10px;">
                 <el-pagination
@@ -58,6 +120,7 @@
 
 <script>
     import headTop from '../components/headTop'
+    import moment from 'moment';
     import {getOrderList, getOrderCount, getResturantDetail, getUserInfo, getAddressById} from '@/api/getData'
     export default {
         data(){
@@ -70,6 +133,7 @@
                 currentPage: 1,
                 restaurant_id: null,
                 expendRow: [],
+                moment:moment
             }
         },
     	components: {
@@ -84,17 +148,7 @@
         },
         methods: {
             async initData(){
-                try{
-                    const countData = await getOrderCount({restaurant_id: this.restaurant_id});
-                    if (countData.status == 1) {
-                        this.count = countData.count;
-                    }else{
-                        throw new Error('获取数据失败');
-                    }
-                    this.getOrders();
-                }catch(err){
-                    console.log('获取数据失败', err);
-                }
+                this.getOrders();
             },
             handleSizeChange(val) {
                 console.log(`每页 ${val} 条`);
@@ -105,19 +159,8 @@
                 this.getOrders()
             },
             async getOrders(){
-                const Orders = await getOrderList({offset: this.offset, limit: this.limit, restaurant_id: this.restaurant_id});
-                this.tableData = [];
-                Orders.forEach((item, index) => {
-                    const tableData = {};
-                    tableData.id = item.id;
-                    tableData.total_amount = item.total_amount;
-                    tableData.status = item.status_bar.title;
-                    tableData.user_id = item.user_id;
- 					tableData.restaurant_id = item.restaurant_id;
- 					tableData.address_id = item.address_id;
-                    tableData.index = index;
-                    this.tableData.push(tableData);
-                })
+                const Orders = await getOrderList({pageSize: 10, pageNum: 1});
+                this.tableData = Orders.records;
             },
             async expand(row, status){
             	if (status) {
