@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "echarts": "^3.5.4",
-    "element-ui": "^1.2.9",
+    "element-ui": "2.15.7",
     "moment": "^2.29.1",
     "time-formater": "^1.0.1",
     "vue": "^2.2.6",
